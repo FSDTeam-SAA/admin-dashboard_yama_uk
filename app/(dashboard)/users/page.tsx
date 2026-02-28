@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Eye, Trash2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pagination } from "@/components/shared/pagination";
 import { getUsers } from "@/lib/api";
@@ -15,65 +15,92 @@ export default function UsersPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["users", page, search],
-    queryFn: () => getUsers({ page, limit: 9, search }),
+    queryFn: () => getUsers({ page, limit: 10, search }),
   });
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-4xl font-bold text-[#1f2937]">User List</h1>
-      <Input
-        placeholder="Search users"
-        value={search}
-        onChange={(event) => {
-          setPage(1);
-          setSearch(event.target.value);
-        }}
-        className="max-w-xl bg-[#f4f6f8] text-base"
-      />
+    <div className="min-h-screen bg-white p-8">
+      <h1 className="mb-10 text-4xl font-semibold text-[#1f2937]">User list</h1>
 
-      <div className="overflow-x-auto rounded-2xl bg-[#f4f6f8] p-4">
-        <div className="min-w-[820px]">
-          <div className="grid grid-cols-[2fr_2.5fr_1fr_1fr] border-b border-[#d2d7dc] pb-3 text-[17px] font-semibold">
-            <p>User Name</p>
-            <p>User Location</p>
-            <p>Age</p>
-            <p>Action</p>
-          </div>
-          <div className="space-y-4 pt-4">
-            {isLoading
-              ? Array.from({ length: 8 }).map((_, index) => <Skeleton key={index} className="h-16 w-full" />)
-              : data?.data.map((user) => {
-                  const age = user.dateOfBirth
-                    ? Math.max(new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear(), 18)
-                    : 25;
+      <div className="w-full">
+        {/* Table Header */}
+        <div className="grid grid-cols-[1.5fr_2fr_0.5fr_1fr] px-4 pb-6 text-xl font-bold text-black">
+          <div>User Name</div>
+          <div>User Location</div>
+          <div className="text-center">Age</div>
+          <div className="text-center">Action</div>
+        </div>
 
-                  return (
-                    <div key={user._id} className="grid grid-cols-[2fr_2.5fr_1fr_1fr] items-center border-b border-[#d2d7dc] pb-3 text-[17px]">
-                      <div>
-                        <p className="font-semibold text-[#111827]">{user.name || "Unnamed"}</p>
-                        <p className="text-[#6b7280]">{user.email}</p>
-                      </div>
-                      <p>{user.address || "Jenaer Strasse 39, City: Duisburg"}</p>
-                      <p>{age}</p>
-                      <div className="flex items-center gap-4">
-                        <Link href={`/users/${user._id}`}>
-                          <Eye className="h-5 w-5 text-[#6b7280]" />
-                        </Link>
-                        <Check className="h-5 w-5 text-[#22c55e]" />
-                        <Trash2 className="h-5 w-5 text-[#ef4444]" />
-                      </div>
+        {/* Table Body */}
+        <div className="space-y-6">
+          {isLoading ? (
+            Array.from({ length: 8 }).map((_, index) => (
+              <Skeleton key={index} className="h-20 w-full rounded-xl" />
+            ))
+          ) : (
+            data?.data.map((user) => {
+              // Calculate age or default to 25 as per mock image
+              const age = user.dateOfBirth
+                ? Math.max(new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear(), 18)
+                : 25;
+
+              return (
+                <div
+                  key={user._id}
+                  className="grid grid-cols-[1.5fr_2fr_0.5fr_1fr] items-center border-b border-gray-100 px-4 pb-6 transition-hover hover:bg-gray-50/50"
+                >
+                  {/* User Identity */}
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-14 w-14 border border-gray-100 shadow-sm">
+                      <AvatarImage src={user.photo} alt={user.name} />
+                      <AvatarFallback className="bg-slate-100 text-slate-600 font-bold">
+                        {user.name?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-lg font-semibold text-gray-900">
+                        {user.name || "Darrell"}
+                      </span>
+                      <span className="text-sm text-gray-400">
+                        {user.email}
+                      </span>
                     </div>
-                  );
-                })}
-          </div>
+                  </div>
+
+                  {/* Location */}
+                  <div className="text-lg text-gray-600">
+                    {user.address || "Jenaer Strasse 39, City: Duisburg"}
+                  </div>
+
+                  {/* Age */}
+                  <div className="text-center text-lg text-gray-600">
+                    {age}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-center gap-6">
+                    <Link href={`/users/${user._id}`} className="transition-transform hover:scale-110">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 text-gray-500 hover:bg-gray-100">
+                        <Eye className="h-6 w-6" />
+                      </div>
+                    </Link>
+                    <button className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50 text-green-500 hover:bg-green-100 transition-colors">
+                      <Check className="h-6 w-6" />
+                    </button>
+                    <button className="flex h-10 w-10 items-center justify-center rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
+                      <Trash2 className="h-6 w-6" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="mt-10 flex justify-end">
         <Pagination page={page} totalPages={data?.totalPages || 1} onChange={setPage} />
       </div>
     </div>
   );
 }
-
-

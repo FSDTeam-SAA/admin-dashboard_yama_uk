@@ -1,16 +1,19 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = React.useState("admin@gmail.com");
-  const [password, setPassword] = React.useState("123456");
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [remember, setRemember] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -21,6 +24,8 @@ export default function LoginPage() {
       email,
       password,
       redirect: false,
+      // optional: pass remember flag if your backend uses it
+      remember,
     });
 
     setLoading(false);
@@ -35,42 +40,76 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#eceeef] px-4">
-      <div className="w-full max-w-[760px] rounded-2xl p-6 md:p-10">
-        <div className="mb-8 flex justify-center">
-          <div className="flex h-44 w-44 items-center justify-center rounded-4xl border border-white bg-black text-6xl font-bold text-white">e</div>
+    <main className="flex min-h-screen items-center justify-center bg-white px-4">
+      <div className="w-full max-w-[520px]">
+        {/* Logo */}
+        <div className="mb-6 flex justify-center">
+          <div className="flex h-[92px] w-[92px] items-center justify-center rounded-2xl bg-black shadow-sm">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={72}
+              height={72}
+              className="h-[62px] w-[62px] object-contain"
+              priority
+            />
+          </div>
         </div>
-        <h1 className="text-center text-5xl font-bold text-black">Login to Account</h1>
-        <p className="mb-8 text-center text-xl text-[#9a9a9a]">Please enter your email and password to continue</p>
 
-        <form onSubmit={onSubmit} className="space-y-4">
+        {/* Title */}
+        <h1 className="text-center text-[34px] font-extrabold leading-tight text-black">
+          Login to Account
+        </h1>
+        <p className="mt-2 text-center text-[18px] text-[#9a9a9a]">
+          Please enter your email and password to continue
+        </p>
+
+        {/* Form */}
+        <form onSubmit={onSubmit} className="mx-auto mt-8 w-full max-w-[420px] space-y-4">
           <div>
-            <label className="mb-2 block text-lg font-medium text-black">Email Address</label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Enter your email address" className="h-16 text-lg" />
+            <label className="mb-2 block text-[14px] font-medium text-black">
+              Email Address
+            </label>
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email address"
+              className="h-12"
+              autoComplete="email"
+            />
           </div>
 
           <div>
-            <label className="mb-2 block text-lg font-medium text-black">Password</label>
+            <label className="mb-2 block text-[14px] font-medium text-black">
+              Password
+            </label>
             <Input
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
-              className="h-16 text-lg"
+              className="h-12"
               type="password"
+              autoComplete="current-password"
             />
           </div>
 
-          <div className="flex items-center justify-between py-1">
-            <label className="flex items-center gap-2 text-xl text-[#4b5563]">
-              <input type="checkbox" defaultChecked className="h-5 w-5 accent-[#3ea0d8]" />
-              Remember Me
-            </label>
-            <button type="button" className="text-xl text-[#374151]" onClick={() => router.push("/forgot-password")}>
+          {/* Remember + Forgot */}
+          <div className="flex items-center justify-end pt-1">
+
+            <button
+              type="button"
+              className="text-[12px] text-[#374151]"
+              onClick={() => router.push("/forgot-password")}
+            >
               Forgot Password?
             </button>
           </div>
 
-          <Button type="submit" className="h-16 w-full text-xl" disabled={loading}>
+          <Button
+            type="submit"
+            className="h-12 w-full bg-sky-500 text-[14px] font-medium hover:bg-sky-600"
+            disabled={loading}
+          >
             {loading ? "Loading..." : "Login"}
           </Button>
         </form>
@@ -78,5 +117,3 @@ export default function LoginPage() {
     </main>
   );
 }
-
-
